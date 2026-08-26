@@ -1,8 +1,85 @@
 import { FaUser, FaLock, FaEye, FaEyeSlash} from "react-icons/fa";
 import { MdEmail, MdLock } from "react-icons/md";
 import { Link } from "react-router-dom";
+import { useState, type SubmitEventHandler } from "react";
 
 function Signup() {
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [termsPrivacy, setTermsPrivacy] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [errors, setErrors] = useState({
+        name:"",
+        email:"",
+        password:"",
+        confirmPassword:"",
+        termsPrivacy:""
+    })
+    const submitHandler: SubmitEventHandler<HTMLFormElement> = (e) => {
+        e.preventDefault();
+        if(!validateForm()) {
+            return;
+        }
+        setLoading(true);
+
+        // later API come here, this is for temporary completion.
+        console.log({
+            name,
+            email,
+            password,
+            confirmPassword,
+            termsPrivacy
+        })
+    }
+    function validateForm() {
+        const newErrors = ({
+            name:"",
+            email:"",
+            password:"",
+            confirmPassword:"",
+            termsPrivacy:""
+        })
+        if(!name.trim()) {
+            newErrors.name = "Name is required"
+        } else if(name.trim().length < 2 || name.trim().length > 50) {
+            newErrors.name = "Enter name within 2 and 50"
+        } else if(!/^[\p{L}]+(?:[ '\u2019-][\p{L}]+)*$/u.test(name.trim())) {
+            newErrors.name = "Enter a valid name"
+        }
+
+        if(!email.trim()) {
+            newErrors.email = "Email is required"
+        } else if(email.trim().length < 8 || email.trim().length > 120) {
+            newErrors.email = "Enter email within 8 and 120"
+        } else if(!/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(email.trim())) {
+            newErrors.email = "Enter a valid email"
+        }
+
+        if(!password) {
+            newErrors.password = "Password is required"
+        } else if(!/^(?=.*[A-Za-z])(?=.*\d).{10,}$/.test(password)) {
+            newErrors.password = "Password must include at least one letter, one number and 10 characters"
+        }
+
+        if(!confirmPassword) {
+            newErrors.confirmPassword = "Please confirm your password"
+        } else if(confirmPassword !== password) {
+            newErrors.confirmPassword = "password do not match"
+        }
+
+        if(!termsPrivacy) {
+            newErrors.termsPrivacy = "Please agree to the Terms of Service and privacy policy"
+        }
+        setErrors(newErrors);
+        return !(
+            newErrors.name || newErrors.email || newErrors.password
+            || newErrors.confirmPassword || newErrors.termsPrivacy
+        )
+    }
     return (
         // root box
         <div className="min-h-screen bg-(--background) px-4 py-4 text-(--foreground) sm:px-6 sm:py-6 lg:px-8 lg:py-8">
@@ -13,30 +90,38 @@ function Signup() {
                     <p className="max-w-md font-sans text-base leading-7 text-(--foreground-secondary)">Observe your life with a clear, accurate view</p>
                 </div>
 
-                <form className="mt-6 space-y-3">
+                <form noValidate onSubmit={submitHandler} className="mt-6 space-y-3">
                     {/* name */}
                     <div className="space-y-2">
                         <label htmlFor="name" className="block font-sans text-sm font-medium text-(--foreground)">Full Name</label>
                         <div className="relative">
                             <FaUser aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-(--foreground-muted)"/>
-                            <input type="text" id="name" name="name" autoComplete="name" required
+                            <input type="text" id="name" name="name" autoComplete="name" required value={name} onChange={(e) => setName(e.target.value)}
                             className="min-h-12 w-full border border-(--border) bg-(--surface) pl-10 pr-3 font-sans text-base text-(--foreground) outline-none transition-[border-color,box-shadow] 
                             duration-(--duration-normal) ease-(--ease-standard) hover:border-(--foreground-muted) focus:border-(--foreground) focus:ring-2 
                             focus:ring-(--foreground)/8"/>
                         </div>
+                        {errors.name && (
+                            <p role="alert" className="text-sm leading-5 text-(--danger)">{errors.name}</p>
+                        )}
                     </div>
+                        
 
                     {/* email */}
                     <div className="space-y-2">
                         <label htmlFor="email" className="block font-sans text-sm font-medium text-(--foreground)">Email Address</label>
                         <div className="relative">
                             <MdEmail aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-(--foreground-muted)"/>
-                            <input type="email" id="email" name="email" autoComplete="email" required
+                            <input type="email" id="email" name="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)}
                             className="min-h-12 w-full border border-(--border) bg-(--surface) pl-10 pr-3 font-sans text-base text-(--foreground) outline-none 
                             transition-[border-color,box-shadow] duration-(--duration-normal) ease-(--ease-standard) hover:border-(--foreground-muted) 
                             focus:border-(--foreground) focus:ring-2 focus:ring-(--foreground)/8"/>
                         </div>
+                        {errors.email && (
+                            <p role="alert" className="text-sm leading-5 text-(--danger)">{errors.email}</p>
+                        )}
                     </div>
+                    
 
                     {/* new password */}
                     <div className="space-y-2">
@@ -44,23 +129,22 @@ function Signup() {
                         <div className="relative">
                             <MdLock aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-(--foreground-muted)"/>
 
-                            <input type="password" id="password" name="password" autoComplete="new-password" required
+                            <input type={showPassword ? "text" : "password"} id="password" name="password" autoComplete="new-password" required value={password} onChange={(e) => setPassword(e.target.value)}
                             className="min-h-12 w-full border border-(--border) bg-(--surface) pl-10 pr-3 font-sans text-base text-(--foreground) outline-none 
                             transition-[border-color,box-shadow] duration-(--duration-normal) ease-(--ease-standard) hover:border-(--foreground-muted) 
                             focus:border-(--foreground) focus:ring-2 focus:ring-(--foreground)/8"/>
 
-                            <FaEye className="cursor-pointer absolute right-4 top-1/2 -translate-y-1/2 text-(--foreground-muted) transition-colors hover:text-(--foreground)"/>
+                            {showPassword ? (
+                                <FaEyeSlash onClick={() => setShowPassword(!showPassword)} className="cursor-pointer absolute right-4 top-1/2 -translate-y-1/2 text-(--foreground-muted) transition-colors hover:text-(--foreground)"/>
+                            ) : (
+                                <FaEye onClick={() => setShowPassword(!showPassword)} className="cursor-pointer absolute right-4 top-1/2 -translate-y-1/2 text-(--foreground-muted) transition-colors hover:text-(--foreground)" />
+                            )}
                         </div>
+                        {errors.password && (
+                            <p role="alert" className="text-sm leading-5 text-(--danger)">{errors.password}</p>
+                        )}
                     </div>
-
-                    {   /* password condition */}
-                    <div>
-                        <ul className="text-sm flex flex-col sm:flex-row gap-1 sm:gap-3 text-(--foreground-muted)">
-                            <li className="flex gap-2">
-                                <span aria-hidden="true">Password must be at least 10 characters</span>
-                            </li>
-                        </ul>
-                    </div>
+                    
 
                     {/* confirm password */}
                     <div className="space-y-2">
@@ -68,46 +152,50 @@ function Signup() {
                         <div className="relative">
                             <FaLock aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-(--foreground-muted)"/>
                             
-                            <input type="password" id="confirm-password" name="confirm-password" autoComplete="confirm-password" required
+                            <input type={showConfirmPassword ? "text" : "password"} id="confirm-password" name="confirm-password" autoComplete="new-password" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
                             className="min-h-12 w-full border border-(--border) bg-(--surface) pl-10 pr-3 font-sans text-base text-(--foreground) outline-none 
                             transition-[border-color,box-shadow] duration-(--duration-normal) ease-(--ease-standard) hover:border-(--foreground-muted) 
                             focus:border-(--foreground) focus:ring-2 focus:ring-(--foreground)/8"/>
 
-                            <FaEyeSlash className="cursor-pointer absolute right-4 top-1/2 -translate-y-1/2 text-(--foreground-muted) transition-colors hover:text-(--foreground)"/>
+                            {showConfirmPassword ? (
+                                <FaEyeSlash onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="cursor-pointer absolute right-4 top-1/2 -translate-y-1/2 text-(--foreground-muted) transition-colors hover:text-(--foreground)"/>
+                            ) : (
+                                <FaEye onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="cursor-pointer absolute right-4 top-1/2 -translate-y-1/2 text-(--foreground-muted) transition-colors hover:text-(--foreground)" />
+                            )}
                         </div>
-                    </div>
-
-                    {/* confirm password condition */}
-                    <div>
-                        <ul className="text-sm flex flex-col sm:flex-row gap-1 sm:gap-3 text-(--foreground-muted)">
-                            <li className="flex gap-2">
-                                <span aria-hidden="true">Password match</span>
-                            </li>
-                        </ul>
+                        {errors.confirmPassword && (
+                            <p role="alert" className="text-sm leading-5 text-(--danger)">{errors.confirmPassword}</p>
+                        )}
                     </div>
 
                     {/* terms and privacy policy */}
                     <div className="flex items-center gap-3 pt-1">
-                        <input type="checkbox" id="terms-privacy" name="terms-privacy" value="accepted" required
+                        <input type="checkbox" id="terms-privacy" name="terms-privacy" value="accepted" required checked={termsPrivacy} onChange={(e) => setTermsPrivacy(e.target.checked)}
                         className="mt-1 h-4 w-4 shrink-0 accent-(--foreground)"/>
                         <label htmlFor="terms-privacy" className="text-sm leading-6 text-(--foreground-secondary)">
                             I agree to the {" "} <Link to="/terms" className="font-medium text-(--foreground) underline underline-offset-4 hover:text-(--foreground-secondary)">Terms of Service</Link>{" "}
                             and {" "} <Link to="/privacy" className="font-medium text-(--foreground) underline underline-offset-4 hover:text-(--foreground-secondary)">Privacy Policy</Link>
                         </label>
                     </div>
+                    {errors.termsPrivacy && (
+                        <p role="alert" className="text-sm leading-5 text-(--danger)">{errors.termsPrivacy}</p>
+                    )}
+                
 
                     {/* sign up button */}
-                    <button type="submit"
+                    <button type="submit" disabled={loading}
                     className="inline-flex min-h-12 w-full items-center justify-center bg-(--primary) px-6 font-sans text-sm font-medium text-(--primary-foreground) transition-colors duration-(--duration-normal) 
                     ease-(--ease-standard) hover:bg-(--foreground-secondary) focus-visible:outline-2 focus-visible:outline-(--foreground) focus-visible:outline-offset-2">Create Account</button>
                 </form>
 
+                {/* divider */}
                 <div className="my-6 flex items-center gap-4">
                     <div className="h-px flex-1 bg-(--border-subtle)"></div>
                     <p className="shrink-0 text-xs font-medium uppercase tracking-[0.12em] text-(--foreground-muted)">or continue with</p>
                     <div className="h-px flex-1 bg-(--border-subtle)"></div>
                 </div>
 
+                {/* OAuth */}
                 <div className="grid gap-3 sm:grid-cols-2">
                     <button type="button" className="inline-flex min-h-12 w-full items-center justify-center gap-3 border border-(--border) bg-(--surface) px-4 font-sans text-sm font-medium text-(--foreground) 
                     transition-colors duration-(--duration-normal) ease-(--ease-standard) hover:bg-(--surface-muted) hover:border-(--foreground-muted) focus-visible:outline-2 focus-visible:outline-(--foreground) focus-visible:outline-offset-2">
@@ -131,6 +219,8 @@ function Signup() {
                         </svg>Continue with GitHub 
                     </button>
                 </div>
+
+                {/* login part */}
                 <div className="mt-6 border-t border-(--border-subtle) pt-4 text-center">
                     <p className="text-sm text-(--foreground-secondary)">Already have an Account? {" "}</p>
                     <Link to="/login" className="font-medium text-(--foreground) underline underline-offset-4 hover:text-(--foreground-secondary)">Login</Link>
