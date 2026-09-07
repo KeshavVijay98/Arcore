@@ -1,6 +1,6 @@
 import "dotenv/config"
 import { connectDB } from "./db";
-import { User } from "./models/user.models";
+import { User } from "./models/user-models";
 
 connectDB();
 
