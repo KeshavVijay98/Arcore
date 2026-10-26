@@ -1,8 +1,8 @@
-Arcore
+### Arcore
 
 Arcore is a personal life-planning and trajectory platform designed to help users understand where they are, define where they want to go, and see how their life changes over time.
 
-Overview
+### Overview
 
 Arcore organizes personal information around three core areas:
 
@@ -12,7 +12,7 @@ Your Trajectory — Understand how your life changes over time through meaningfu
 
 The platform is intended to provide a structured view of the relationship between a person's present situation, desired future, goals, and trajectory over time.
 
-Features
+### Features
 Your Life
 
 Record and understand your current situation, circumstances, and important areas of your life.
@@ -32,7 +32,7 @@ Progress toward goals
 Changes in life circumstances
 Project Structure
 
-The application is built around the following conceptual flow:
+### The application is built around the following conceptual flow:
 
 Current Life
      ↓
@@ -42,7 +42,8 @@ Trajectory
      ↓
 Changes Over Time
 Getting Started
-Prerequisites
+
+### Prerequisites
 
 Install the dependencies required by the project before running the application.
 `npm install`
@@ -58,7 +59,7 @@ Run the production version
 `npm run start`
 Update these commands if the project uses a different framework or package manager.
 
-Current Status:
+### Current Status:
 Arcore is currently under development.
 The current interface introduces the core product concept and provides entry points for:
 Signing up
@@ -68,9 +69,9 @@ Defining goals
 Understanding their trajectory
 Product Concept
 
-Arcore is based on a simple model:
+### Arcore is based on a simple model:
 Understand where you are → define where you want to go → track how you get there.
 The long-term goal is to give users a structured representation of their life across present state, desired future, goals, events, milestones, and changes over time.
 
-License:
+### License:
 This project is currently private and under development.
